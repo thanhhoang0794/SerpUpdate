@@ -1,0 +1,170 @@
+@startuml SERP_ERD
+
+entity "User" as user {
+    id: number
+    -- 
+    googleId: string
+    email: string
+    username: string
+    password: string
+    isAdmin: boolean
+    affiliateId: string
+    paymentMethod: string
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Credit" as credit {
+    id: number
+    --
+    ~userId: number
+    --
+    totalCredits : number
+    bonusCredits: number
+    expiredCredits: number 
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Campaign" as campaign {
+    id: number
+    -- 
+    name: string
+    created_at: Date
+    updated_at: Date
+}
+
+entity "CampaignSnapshot" as campaignSnapshot {
+    id: number
+    --
+    ~campaignId: number
+    --
+    snapshotType: string
+    snapshotData: string
+    snapshotDate: Date
+    created_at: Date
+    updated_at: Date
+}
+
+entity "CampaignUser" as campaignUser {
+    id: number
+    --
+    ~campaignId: number
+    ~userId: number
+    -- 
+    isCreator: boolean
+    canEdit: boolean
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Domain" as domain {
+    id: number
+    --
+    ~campaignId: number
+    --
+    domain: string
+    slug: string
+    keywordCount: number
+    lastUpdated: Date
+    added: Date
+    tags: string
+    notification: string
+    notification_interval: string
+    notification_emails: string
+    search_console: string
+    created_at: Date
+    updated_at: Date
+}
+
+entity "CompetitorDomain" as competitorDomain {
+    id: number
+    --
+    ~domainId: number
+    --
+    competitorDomain: string
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Keyword" as keyword {
+    id: number
+    --
+    ~domainId: number
+    --
+    keyword: string
+    device: string
+    country: string
+    lastUpdated: string
+    added: string
+    position: number
+    volume: number
+    sticky: boolean
+    history: KeywordHistory
+    lastResult: KeywordLastResult[]
+    url: string
+    tags: string[]
+    updating: boolean
+    lastUpdateError: {date: string, error: string, scraper: string} | false
+    scData?: any
+    uid?: string
+    city?: string
+    created_at: Date
+    updated_at: Date
+}
+
+' Nested structures for Keyword entity (representing keyword history and results)
+' KeywordLastResult {
+'    position: number ' Ranking position in search
+'    url: string ' URL of the ranked page
+'    title: string ' Title of the ranked page
+' }
+
+' KeywordHistory {
+'    [date:string] : number ' Mapping of date to ranking position
+' }
+
+entity "KeywordRanking" as keywordRanking {
+    id: number
+    --
+    ~keywordId: number
+    ~domainId: number
+    ~competitorDomainId: number
+    -- 
+    rank: number
+    searchVolume: number
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Transaction" as transaction {
+    id: number
+    --
+    ~userId: number
+    --
+    transactionDate: Date
+    stripeId: string
+    amount: number
+}
+
+' Relationships between entities
+campaign ||--o{ domain : "has many" 
+' A campaign can have many domains
+domain ||--o{ keyword : "has many" 
+' A domain can have many keywords
+keyword ||--o{ keywordRanking : "tracks" 
+' Each keyword has associated rankings
+domain ||--o{ competitorDomain : "has many" 
+' A domain can have many competitor domains
+competitorDomain ||--o{ keywordRanking : "tracks" 
+' Rankings are tracked for competitor domains too
+user ||--o{ credit 
+user ||--o{ transaction
+campaign ||--o{ campaignUser : "many-to-many" 
+' Many-to-many relationship between campaigns and users
+campaign ||--o{ campaignSnapshot : "has many" 
+' A campaign can have many snapshots
+user ||--o{ campaignUser 
+' Each user can participate in multiple campaigns
+
+@enduml

@@ -1,0 +1,35 @@
+@startuml Checkout Flow
+
+actor User
+participant Frontend
+participant Backend
+participant PaymentGateway
+database Database
+
+User -> Frontend: Chọn số lượng credit
+Frontend -> User: Hiển thị màn hình xác nhận
+
+User -> Frontend: Xác nhận thanh toán
+Frontend -> Backend: Tạo yêu cầu thanh toán
+
+Backend -> Database: Tạo transaction (status: pending)
+Backend -> PaymentGateway: Tạo payment URL
+PaymentGateway --> Backend: Trả về payment URL
+Backend --> Frontend: Trả về payment URL
+Frontend -> User: Chuyển hướng đến trang thanh toán
+
+User -> PaymentGateway: Thực hiện thanh toán
+PaymentGateway -> Backend: Callback với kết quả thanh toán
+
+alt Thanh toán thành công
+    Backend -> Database: Cập nhật transaction (status: success)
+    Backend -> Database: Cập nhật credit cho user
+    Backend --> Frontend: Trả về kết quả thành công
+    Frontend -> User: Hiển thị thông báo thành công
+else Thanh toán thất bại
+    Backend -> Database: Cập nhật transaction (status: failed)
+    Backend --> Frontend: Trả về kết quả thất bại
+    Frontend -> User: Hiển thị thông báo thất bại
+end
+
+@enduml

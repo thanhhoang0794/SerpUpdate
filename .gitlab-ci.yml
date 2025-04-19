@@ -1,0 +1,65 @@
+stages:
+  - vercel
+  - build
+  - deploy
+
+default:
+  image: dockette/vercel
+
+vercel_preview:
+  stage: vercel
+  except:
+    - main
+    - dev
+  script:
+    - vercel deploy --token=$VERCEL_TOKEN --regions sin1
+
+vercel_staging:
+  stage: vercel
+  only:
+    - dev
+  script:
+    - vercel deploy --prod --token=$VERCEL_TOKEN --regions sin1
+
+vercel_production:
+  stage: vercel
+  only:
+    - main
+  script:
+    - vercel deploy --prod --token=$VERCEL_TOKEN --regions sin1
+
+build_staging:
+  stage: deploy
+  # image: zymethyang/ubuntu
+  image: docker:27
+  before_script:
+    - echo "$DOCKER_PASSWORD" | docker login -u henrynguyen0794 --password-stdin
+    - cp $STAGING_ENV ./.env
+  script:
+    # Tag the image correctly during build
+    - docker build -t henrynguyen0794/serp-update:staging .
+    # Push the image to the GitLab container registry
+    - docker push henrynguyen0794/serp-update:staging
+  only:
+    - dev
+
+# deploy-staging:
+#   image: docker:27
+#   stage: deploy
+#   variables:
+#     DOCKER_HOST: unix:///var/run/docker.sock
+
+#   before_script:
+#     - mkdir -p /root/.ssh/
+#     - echo "$PRIVATE_SSH_KEY_STAG_DO" > "/root/.ssh/id_rsa"
+#     - chmod 600 /root/.ssh/id_rsa
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+#     - chmod 600 ~/.ssh/config
+#   script:
+#     - DOCKER_HOST=ssh://root@"$SERVER_IP_STAG_DO" docker-compose -f ./deployment/staging/docker-compose.yml pull
+#     - DOCKER_HOST=ssh://root@"$SERVER_IP_STAG_DO" docker-compose -f ./deployment/staging/docker-compose.yml up -d --force-recreate
+#     - docker rmi -f $CI_REGISTRY:stag
+#     - docker system prune -af
+#   only:
+#     - dev

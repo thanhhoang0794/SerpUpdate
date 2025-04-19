@@ -1,0 +1,159 @@
+@startuml
+entity "Users" as users {
+    id: number
+    -- 
+    google_id: string
+    email: string
+    username: string
+    password: string
+    is_admin: boolean
+    affiliate_id: string
+    payment_method: string
+    bank_name: string
+    bank_account_number: string
+    bank_swift_code: string
+    bank_branch: string
+    bank_city_or_province: string
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Credits" as credits {
+    id: number
+    --
+    ~user_id: number
+    --
+    total_credits : number
+    bonus_credits: number
+    expired_credits: number 
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Campaigns" as campaigns {
+    id: number
+    -- 
+    name: string
+    keyword_count: number
+    device: string
+    country: string
+    language: string
+    tags: string
+    notification: string
+    notification_interval: string
+    notification_emails: string
+    search_console: string
+    updating: boolean
+    last_update_error: {date: string, error: string, scraper: string} | false
+    sc_data?: any
+    uid?: string
+    city?: string
+    day_of_week?: string[]
+    time_of_day?: Date
+    created_at: Date
+    updated_at: Date
+}
+
+entity "CampaignSnapshots" as campaignSnapshots {
+    id: number
+    --
+    ~campaign_id: number
+    --
+    snapshot_type: string
+    snapshot_data: string
+    snapshot_date: Date
+    created_at: Date
+    updated_at: Date
+}
+
+entity "CampaignUsers" as campaignUsers {
+    id: number
+    --
+    ~campaign_id: number
+    ~user_id: number
+    -- 
+    is_creator: boolean
+    can_edit: boolean
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Domains" as domains {
+    id: number
+    --
+    ~campaign_id: number
+    --
+    domain: string
+    domain_type: string
+    slug: string  
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Keywords" as keywords {
+    id: number
+    --
+    ~domain_id : number
+    --
+    keyword: string
+    device: string
+    country: string
+    language: string
+    added: string
+    position: number
+    volume: number
+    sticky: boolean
+    history: KeywordHistory
+    last_Result: KeywordLastResult[]
+    url: string
+    tags: string[]
+    updating: boolean
+    lastUpdateError: {date: string, error: string, scraper: string} | false
+    scData?: any
+    uid?: string
+    city?: string
+    created_at: Date
+    updated_at: Date
+}
+
+entity "KeywordRankings" as keywordRankings {
+    id: number
+    --
+    ~keyword_id: number
+    ~domain_id: number
+    -- 
+    rank: number
+    search_volume: number
+    created_at: Date
+    updated_at: Date
+}
+
+entity "Transactions" as transactions {
+    id: number
+    --
+    ~user_id: number
+    --
+    transaction_date: Date
+    stripe_id: string
+    amount: number
+    created_at: Date
+    updated_at: Date
+}
+
+' Relationships between entities
+campaigns ||--o{ domains : "one-to-many"
+' A campaign can have multiple domains
+domains ||--o{ keywords : "one-to-many"
+' Each domain contains multiple keywords
+keywords ||--o{ keywordRankings : "one-to-many"
+' Each keyword has multiple rankings associated with it per domain
+users ||--|| credits: "one-to-one"
+users ||--o{ transactions: "one-to-many"
+campaigns ||--o{ campaignUsers : "one-to-many"
+' Many-to-many relationship between campaigns and users
+campaigns ||--o{ campaignSnapshots : "one-to-many"
+' A campaign can have multiple snapshots
+users ||--o{ campaignUsers : "one-to-many"
+' Each user can participate in multiple campaigns
+' Each user can participate in multiple campaigns
+@enduml
