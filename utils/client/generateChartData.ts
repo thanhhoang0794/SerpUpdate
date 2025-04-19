@@ -50,7 +50,6 @@ export const generateTheChartData = (history: KeywordHistory, time:string = '30'
          chartData.sreies.push(serpVal);
       }
    }
-   // console.log(chartData);
 
    return chartData;
 };

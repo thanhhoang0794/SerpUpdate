@@ -104,8 +104,6 @@ export async function POST(request: NextRequest) {
     }
     const location = locationList.find((location: Location) => location.country_iso_code === campaignData.country_code)
     const language = languageList.find((language: Language) => language.language_name === campaignData.language)
-    console.log('location', location)
-    console.log('language', language)
     const pingback_url = process.env.PINGBACK_URL
     await deleteCache(`campaign:${campaignId}:tasks`)
     await deleteCache(`taskTracking:${campaignId}`)

@@ -21,7 +21,6 @@ export default function CreditPage() {
       setData(credit)
       setPriceData(price.data)
       setIsLoading(false)
-      console.log(credit, price.data)
     })
   }, [])
 

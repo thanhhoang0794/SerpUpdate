@@ -15,12 +15,10 @@ export async function GET(request: Request) {
     if (userError) {
       return NextResponse.json({ error: userError.message }, { status: StatusCodes.INTERNAL_SERVER_ERROR })
     }
-    console.log(userData)
     const { data, error } = await supabase.from('credits')
     .select('*, creditHistories(*)')
     .eq('user_id', userData.user?.id)
     .order('created_at', { foreignTable: 'creditHistories', ascending: false })
-    console.log(data)
     if (error) {
       return NextResponse.json({ error: error.message }, { status: StatusCodes.INTERNAL_SERVER_ERROR })
     }

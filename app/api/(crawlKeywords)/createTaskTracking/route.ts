@@ -17,11 +17,9 @@ export async function POST(request: Request) {
     }
 
     const taskIds = result.data.map((task: any) => task.id)
-    console.log('taskIds', taskIds)
     try {
       const existingTaskIds = await getTaskTrackingBatch(campaignId)
       const updatedTaskIds = existingTaskIds ? [...existingTaskIds, ...taskIds] : taskIds
-      console.log('updatedTaskIds', updatedTaskIds)
       await setTaskTrackingBatch(campaignId, updatedTaskIds)
     } catch (redisError) {
       console.error('Redis error:', redisError)

@@ -118,7 +118,6 @@ export const ShareCampaignDialog = ({ id }: Props) => {
     const emailValue = data.email
     if (emailValue && !emails.includes(emailValue)) {
       setEmails([...emails, emailValue])
-      console.log('Added email:', emailValue)
       setValue('email', '')
     }
   }

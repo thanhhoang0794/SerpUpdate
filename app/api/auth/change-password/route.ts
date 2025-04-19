@@ -26,7 +26,6 @@ export async function POST(request: Request) {
       new_plain_password: newPassword,
     });
 
-    console.log(data, error)
 
     if (error) {
       console.error('Error changing password:', error);

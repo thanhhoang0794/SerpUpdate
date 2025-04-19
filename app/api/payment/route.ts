@@ -22,7 +22,6 @@ export async function GET(request: Request) {
       }
     })
 
-    console.log('Final URL:', response.request?.res?.responseUrl)
 
     if (response.request?.res?.responseUrl) {
       return NextResponse.json({

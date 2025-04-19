@@ -13,7 +13,6 @@ export const updateUserProfile = async (data: ProfileFormValues, uid: string) =>
       throw new Error('Failed to update user profile')
     }
     const updatedData = await response.json()
-    console.log(updatedData)
   }
 
 export const updateUserAffiliate = async (data: AffiliateFormValues, uid: string) => {

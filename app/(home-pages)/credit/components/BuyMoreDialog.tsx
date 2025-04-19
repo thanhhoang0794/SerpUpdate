@@ -78,7 +78,6 @@ export function BuyMoreDialog({ data }: BuyMoreDialogProps) {
   }
 
   function handleBuyNow() {
-    console.log('Buy now:', endValue[0])
     setCreditValue(endValue[0])
     router.push('/checkout')
   }

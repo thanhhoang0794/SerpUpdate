@@ -68,7 +68,6 @@ export const AddNoteDialog = ({
   function handleTextareaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = e.target.value
     setValue('campaignNote', value)
-    console.log('Textarea value:', value) // Debug log
   }
   function handleCancelEdit() {
     setValue('campaignNote', tempCampaignNote)

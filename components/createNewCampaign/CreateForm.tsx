@@ -84,7 +84,6 @@ const CreateForm = () => {
     name: 'competitorDomains'
   })
 
-  console.log('competitorDomains', competitorDomains)
 
   function handleShowModal() {
     setValue('keywords', [...new Set(keywordText.split('\n').map(keyword => keyword.trim()))])

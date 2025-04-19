@@ -133,7 +133,6 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ isOwnerCampaign
         selectedSearchEngine !== tempGeneralInformation.selectedSearchEngine ? selectedSearchEngine : undefined
     }
     const changedFields = Object.fromEntries(Object.entries(changes).filter(([_, value]) => value !== undefined))
-    console.log(changedFields)
 
     if (Object.keys(changedFields).length > 0) {
       toast.promise(

@@ -34,15 +34,11 @@ export async function POST(request: Request) {
     : campaignTasksData
       ? [campaignTasksData]
       : []
-  console.log('completedTasks Count', completedTasks.length)
   const waitingTasksCount = campaignUpdating.total_task - completedTasks.length
-  console.log('waitingTasksCount', waitingTasksCount)
   const taskIds = await getTaskTrackingBatch(campaignUpdating.campaign_id)
-  console.log('taskIds left', taskIds)
   if (waitingTasksCount > 0) {
     const countWaiting = campaignUpdating.count_waiting
     if (countWaiting === countWaitingConfig) {
-      console.log('Check task manually')
       const login = process.env.DATAFORSEO_LOGIN
       const password = process.env.DATAFORSEO_PASSWORD
 
@@ -95,9 +91,6 @@ export async function POST(request: Request) {
         )
       }
     } else {
-      console.log(
-        `still waiting for pingback couting to 8: ${countWaiting + 1}... campaign:${campaignUpdating.campaign_id}`
-      )
       const { error: updateCampaignUpdatingError } = await supabase
         .from('campaignUpdatings')
         .update({
@@ -116,7 +109,6 @@ export async function POST(request: Request) {
 }
 
 async function updateCampaign(campaignUpdating: any, supabase: any, completedTasks: any) {
-  console.log('All task tracking completed of campaign: ', campaignUpdating.campaign_id)
   const { error: updateCampaignUpdatingError } = await supabase
     .from('campaignUpdatings')
     .update({ status: CampaignUpdatingStatus.COMPLETED })
@@ -173,7 +165,6 @@ async function updateCampaign(campaignUpdating: any, supabase: any, completedTas
       await updateKeywordsInDatabase(supabase, result.data, searchResults, domainNames, keywordData, date)
     }
   }
-  console.log(`All tasks completed successfully. Updating campaign ${campaignData.id}`)
   await deleteCache(`campaign:${campaignData.id}:tasks`)
   await deleteCache(`taskTracking:${campaignData.id}`)
 

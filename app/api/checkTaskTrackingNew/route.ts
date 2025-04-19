@@ -49,7 +49,6 @@ export async function GET(request: Request) {
       if (count > 0) {
         const totalTask = campaignUpdating.total_task || count
         if (totalTask !== count) {
-          console.log('In waiting for create task done')
           return NextResponse.json({ message: 'In waiting for create task done' }, { status: StatusCodes.OK })
         }
         const taskTrackingWaitingList = taskTrackingList.filter(
@@ -58,9 +57,7 @@ export async function GET(request: Request) {
         if (taskTrackingWaitingList.length > 0) {
           const countWaiting = campaignUpdating.count_waiting
           if (countWaiting !== countWaitingConfig) {
-            console.log(
-              `still waiting for pingback couting to 8: ${countWaiting + 1}... campaign:${campaignUpdating.campaign_id}`
-            )
+            
             const { error: updateCampaignUpdatingError } = await supabase
               .from('campaignUpdatings')
               .update({
@@ -72,7 +69,6 @@ export async function GET(request: Request) {
               return NextResponse.json({ message: 'error' }, { status: StatusCodes.INTERNAL_SERVER_ERROR })
             }
           } else {
-            console.log(`processing after couting to 8: campaign:${campaignUpdating.campaign_id}`)
             const taskIdList = taskTrackingWaitingList.map((task: TaskTracking) => task.task_id)
             const data = {
               campaign_id: campaignUpdating.campaign_id,
@@ -87,7 +83,6 @@ export async function GET(request: Request) {
               body: JSON.stringify(data)
             })
             if (!response.ok) {
-              console.log('Task tracking received list sent to n8n')
               return NextResponse.json(
                 { message: 'Task tracking received list sent to n8n' },
                 { status: StatusCodes.INTERNAL_SERVER_ERROR }
@@ -133,7 +128,6 @@ export async function GET(request: Request) {
               body: JSON.stringify(data)
             })
             if (!response.ok) {
-              console.log('Task tracking received list sent to n8n')
               return NextResponse.json(
                 { message: 'Task tracking received list sent to n8n' },
                 { status: StatusCodes.INTERNAL_SERVER_ERROR }

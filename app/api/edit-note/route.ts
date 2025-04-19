@@ -7,7 +7,6 @@ export async function PATCH(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     const note = await request.json()
-    console.log(note)
     const supabase = await createClient()
     const { data, error } = await supabase.from('campaigns').update({ note}).eq('id', id)
 

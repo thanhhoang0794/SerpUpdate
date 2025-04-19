@@ -60,7 +60,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No tasks found' }, { status: StatusCodes.NOT_FOUND })
     }
     const results = await getDataForSeoTaskResults(taskIds, searchEngine)
-    console.log('results', results)
     for (const result of results) {
       if (result.success && result.data) {
         const searchResults = extractSearchResults(result.data)
@@ -79,7 +78,6 @@ export async function POST(request: Request) {
       }
     }
 
-    console.log(`All tasks completed successfully. Updating campaign ${campaignId}`)
     await deleteCache(`campaign:${campaignId}:tasks`)
 
     const { error: updateCampaignError } = await supabase
