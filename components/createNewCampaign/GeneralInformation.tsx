@@ -54,8 +54,8 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ control }) => {
                         {...field}
                         value={String(field.value)}
                         checked={field.value}
-                        onCheckedChange={(event: { checked: boolean }) => {
-                          field.onChange(!!event.checked)
+                        onCheckedChange={checked => {
+                          field.onChange(checked)
                         }}
                         colorPalette="blue"
                         fontSize={'sm'}
@@ -73,8 +73,8 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ control }) => {
                         {...field}
                         value={String(field.value)}
                         checked={field.value}
-                        onCheckedChange={(event: { checked: boolean }) => {
-                          field.onChange(!!event.checked)
+                        onCheckedChange={checked => {
+                          field.onChange(checked)
                         }}
                         colorPalette="blue"
                         fontSize={'sm'}

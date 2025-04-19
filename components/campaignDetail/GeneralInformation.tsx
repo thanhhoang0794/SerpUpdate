@@ -17,7 +17,6 @@ import { capitalize } from 'lodash'
 import SelectSearchEngineCampaignDetail from './SelectSearchEngineCampaignDetail'
 import { AddNoteDialog } from './AddNoteDialog'
 import { useFormContext } from 'react-hook-form'
-
 interface GeneralInformationProps {
   isOwnerCampaign: boolean
   isUpdating: boolean
@@ -210,8 +209,8 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ isOwnerCampaign
                           {...field}
                           value={String(field.value)}
                           checked={field.value}
-                          onCheckedChange={(event: { checked: boolean }) => {
-                            field.onChange(!!event.checked)
+                          onCheckedChange={checked => {
+                            field.onChange(checked)
                           }}
                           colorPalette="blue"
                           fontSize={'sm'}
@@ -229,8 +228,8 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ isOwnerCampaign
                           {...field}
                           value={String(field.value)}
                           checked={field.value}
-                          onCheckedChange={(event: { checked: boolean }) => {
-                            field.onChange(!!event.checked)
+                          onCheckedChange={checked => {
+                            field.onChange(checked)
                           }}
                           colorPalette="blue"
                           fontSize={'sm'}

@@ -193,7 +193,7 @@ function RegisterForm() {
             <Box>
               <HCaptcha
                 ref={captchaRef}
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                sitekey={process.env.HCAPTCHA_SITE_KEY!}
                 onVerify={(token) => {
                   setCaptchaToken(token)
                 }}
