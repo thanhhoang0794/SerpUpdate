@@ -60,6 +60,7 @@ export async function getDataForSeoCredentials() {
 export async function createDataForSeoTasks(tasks: DataForSeoTask[], searchEngine: string): Promise<DataForSeoResult> {
   try {
     const { authHeader } = await getDataForSeoCredentials();
+    console.log('authHeader', authHeader)
     
     const response = await retryFetch(`https://api.dataforseo.com/v3/serp/${searchEngine}/organic/task_post`, {
       method: 'POST',

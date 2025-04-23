@@ -52,7 +52,7 @@ const CampaignHeader = ({ isOwnerCampaign }: SerpUpdateTableHeaderProps) => {
 
   async function handleUpdate() {
     try {
-      const response = await fetch('/api/update-campaign', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/update-campaign`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

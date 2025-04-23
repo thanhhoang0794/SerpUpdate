@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
     }
     const searchEngine = campaignData?.search_engine
     const taskChunks = splitTasksToTaskChunks(campaignData)
+    console.log(taskChunks)
     const ownDomain = campaignData.domains.find((domain: Domain) => domain.domain_type === DomainType.OWN)
     const keywordIds = ownDomain.keywords.map((keyword: Keyword) => keyword.id)
     const { error: updateError } = await supabase.from('keywords').update({ updating: true }).in('id', keywordIds)
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
       .from('campaignUpdatings')
       .insert(campaignUpdatingBodyData)
       .select()
+      console.log(insertCampaignUpdatingData)
     if (insertCampaignUpdatingError) {
       return NextResponse.json({ message: 'error' }, { status: StatusCodes.INTERNAL_SERVER_ERROR })
     }
@@ -122,6 +124,7 @@ export async function POST(request: NextRequest) {
         searchEngine,
         campaignId
       }
+      console.log(data)
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/createTaskTracking`, {
           method: 'POST',
@@ -130,6 +133,7 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify(data)
         })
+        console.log(response)
         if (!response.ok) {
           const { error: UpdateCampaignUpdatingError } = await supabase
             .from('campaignUpdatings')
