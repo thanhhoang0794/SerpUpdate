@@ -1,25 +1,20 @@
 import React from 'react'
 import { Table, VStack, Container } from '@chakra-ui/react'
 import { columnNameHeader } from '@/app/constant/columnNameHeaderCampaignDetail'
-import { dummyData } from '@/dummyData'
 import SerpUpdateTableItem from './SerpUpdateTableItem'
-import { Control, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { FormValues } from '@/app/types/formValuesCampaign'
 import { formatHistoryDate } from '@/utils/formatDate'
 import { Keyword } from '@/app/types/keywords'
 import { useSearchParams } from 'next/navigation'
 import { parse } from 'flatted'
-interface SerpUpdateTableListProps {
-  control: Control<FormValues>
-}
 
-const SerpUpdateTableList = ({ control }: SerpUpdateTableListProps) => {
+const SerpUpdateTableList = () => {
+  const { watch } = useFormContext<FormValues>()
+  const values = watch()
   const searchParams = useSearchParams()
   const query = searchParams?.get('query') || ''
-  const selectedDomain = useWatch<FormValues, 'selectedDomain'>({
-    control,
-    name: 'selectedDomain'
-  })
+  const selectedDomain = values.selectedDomain
   const filteredKeywords = React.useMemo(() => {
     if (!selectedDomain?.keywords || !query.trim()) {
       return selectedDomain?.keywords || []

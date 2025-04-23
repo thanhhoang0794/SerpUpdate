@@ -1,12 +1,14 @@
 import { Box, HStack, SimpleGrid, Text } from '@chakra-ui/react'
 import { StatLabel, StatRoot, StatHelpText, StatDownTrend, StatUpTrend } from '../ui/stat'
 import React from 'react'
-import { Control, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { FormValues } from '@/app/types/formValuesCampaign'
 import { parse } from 'flatted'
 
-const KeywordTopList = ({ control }: { control: Control<FormValues> }) => {
-  const domain = useWatch({ control, name: 'ownDomain' })
+const KeywordTopList = () => {
+  const { watch } = useFormContext<FormValues>()
+  const values = watch()
+  const domain = values.ownDomain
 
   const keywordCounts = { top1: 0, top3: 0, top5: 0, top10: 0, top30: 0, top100: 0 }
   const keywordCountsHistory = { top1: 0, top3: 0, top5: 0, top10: 0, top30: 0, top100: 0 }
