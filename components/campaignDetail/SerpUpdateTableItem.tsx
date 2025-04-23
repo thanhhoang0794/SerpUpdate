@@ -5,6 +5,8 @@ import { StatRoot, StatHelpText, StatDownTrend, StatUpTrend } from '../ui/stat'
 import { FaDesktop, FaMobile } from 'react-icons/fa'
 import { useState } from 'react'
 import DrawerHistory from './DrawerHistory'
+import { parse } from 'flatted'
+import React from 'react'
 
 const SerpUpdateTableItem = ({ keyword, backgroundColor }: { keyword: any; backgroundColor: string }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,7 +16,15 @@ const SerpUpdateTableItem = ({ keyword, backgroundColor }: { keyword: any; backg
     keyword: ''
   })
 
-  const history = keyword?.history || {}
+  let history = {}
+  if (keyword?.history) {
+    try {
+      history = parse(keyword?.history)
+    } catch (error) {
+      console.error('Error parsing history:', error)
+      history = {}
+    }
+  }
   const recentHistory =
     Object.entries(history)
       .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
@@ -72,7 +82,6 @@ const SerpUpdateTableItem = ({ keyword, backgroundColor }: { keyword: any; backg
         <Table.Cell width="fit-content" paddingY={3} paddingLeft={4}>
           <Text>{keyword.keyword}</Text>
         </Table.Cell>
-        
         <Table.Cell paddingY={3} paddingLeft={4} fontWeight={'500'} color="gray.500" fontSize={'sm'}>
           {keyword.device === 'mobile' ? <FaMobile /> : keyword.device === 'desktop' ? <FaDesktop /> : <FaDesktop />}
         </Table.Cell>

@@ -13,6 +13,7 @@ import { getDataForSeoTaskResults } from '@/utils/dataForSeo'
 import { extractSearchResults } from '@/utils/extractCrawlResult'
 import { updateKeywordsInDatabase } from '@/utils/updateKeywordHistoryNew'
 import { UserData } from '../process-keywords/route'
+import { sendEmail } from '@/app/actions/sendMail'
 
 export async function POST(request: Request) {
   const { campaignUpdatingId, countWaitingConfig } = await request.json()
@@ -166,7 +167,7 @@ async function updateCampaign(campaignUpdating: any, supabase: any, completedTas
     }
   }
   await deleteCache(`campaign:${campaignData.id}:tasks`)
-  await deleteCache(`taskTracking:${campaignData.id}`)
+  await deleteCache(`taskTrackingCampaign:${campaignData.id}`)
 
   const { error: updateCampaignError } = await supabase
     .from('campaigns')
@@ -199,21 +200,18 @@ async function updateCampaign(campaignUpdating: any, supabase: any, completedTas
     )
   }
 
-  const data = {
-    username: userData.users.username,
-    campaignName: campaignData.name,
-    mailTo: userData.users.email
-  }
-
-  const response = await fetch(`https://n8n.udt.group/webhook/7843dc4b-47c6-4f9d-a011-3ada09ce8bf1`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
+  const response = await sendEmail({
+    sender: 'SERP-UPDATE',
+    sendTo: userData.users.email,
+    subject: `Campaign ${campaignData.name} Updated ${date}`,
+    htmlBody: `
+    <p>Hello ${userData.users.username},</p>
+    <p>The campaign ${campaignData.name} has been updated on ${date}.</p>
+    <p>Best regards,</p>
+    <p>SERP-UPDATE</p>
+    `
   })
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+  if (!response.success) {
+    console.error(`Failed to send email: ${response?.error?.message}`)
   }
 }

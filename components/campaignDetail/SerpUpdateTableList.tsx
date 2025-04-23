@@ -1,22 +1,25 @@
 import React from 'react'
-import { Table, Container } from '@chakra-ui/react'
+import { Table, VStack, Container } from '@chakra-ui/react'
 import { columnNameHeader } from '@/app/constant/columnNameHeaderCampaignDetail'
+import { dummyData } from '@/dummyData'
 import SerpUpdateTableItem from './SerpUpdateTableItem'
+import { Control, useWatch } from 'react-hook-form'
 import { FormValues } from '@/app/types/formValuesCampaign'
 import { formatHistoryDate } from '@/utils/formatDate'
 import { Keyword } from '@/app/types/keywords'
 import { useSearchParams } from 'next/navigation'
-import { useFormContext } from 'react-hook-form'
+import { parse } from 'flatted'
+interface SerpUpdateTableListProps {
+  control: Control<FormValues>
+}
 
-interface SerpUpdateTableListProps {}
-
-const SerpUpdateTableList: React.FC<SerpUpdateTableListProps> = () => {
-  const { watch } = useFormContext<FormValues>()
-  const values = watch()
+const SerpUpdateTableList = ({ control }: SerpUpdateTableListProps) => {
   const searchParams = useSearchParams()
   const query = searchParams?.get('query') || ''
-  const selectedDomain = values.selectedDomain
-
+  const selectedDomain = useWatch<FormValues, 'selectedDomain'>({
+    control,
+    name: 'selectedDomain'
+  })
   const filteredKeywords = React.useMemo(() => {
     if (!selectedDomain?.keywords || !query.trim()) {
       return selectedDomain?.keywords || []
@@ -24,8 +27,19 @@ const SerpUpdateTableList: React.FC<SerpUpdateTableListProps> = () => {
     return selectedDomain.keywords.filter(keyword => keyword.keyword.toLowerCase().includes(query.toLowerCase()))
   }, [selectedDomain?.keywords, query])
 
+  // Lấy history dates từ keyword đầu tiên
+  let history = {}
+  if (selectedDomain?.keywords?.[0]?.history) {
+    try {
+      history = parse(selectedDomain?.keywords?.[0]?.history)
+    } catch (error) {
+      console.error('Error parsing history:', error)
+      history = {}
+    }
+  }
+  console.log(history)
   const historyDates = selectedDomain?.keywords?.[0]?.history
-    ? Object.keys(selectedDomain.keywords[0].history)
+    ? Object.keys(history)
         .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
         .slice(0, 5)
         .map(date => formatHistoryDate(date))

@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     for (const campaignUpdating of campaignUpdatingList) {
       const now = new Date()
       const lastCreatedAt = new Date(campaignUpdating.created_at)
-      if (now.getTime() - lastCreatedAt.getTime() > 20000) {
+      if (now.getTime() - lastCreatedAt.getTime() > 30000) {
         void (async () => {
           try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/processCampaignUpdating`, {

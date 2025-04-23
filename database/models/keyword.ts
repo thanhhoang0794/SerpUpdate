@@ -1,4 +1,14 @@
-import { Table, Model, Column, DataType, PrimaryKey, ForeignKey, Default, HasMany, Sequelize } from 'sequelize-typescript'
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  PrimaryKey,
+  ForeignKey,
+  Default,
+  HasMany,
+  Sequelize
+} from 'sequelize-typescript'
 import Domain from './domain'
 import KeywordRanking from './keywordRanking'
 @Table({
@@ -39,26 +49,24 @@ class Keyword extends Model {
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   sticky!: boolean
 
-  @Column({ type: DataType.JSONB, allowNull: true })
-  history!: object
+  @Column({ type: DataType.TEXT, allowNull: true })
+  history!: string
 
-  @Column({ type: DataType.JSONB, allowNull: true })
-  last_result!: object
+  @Column({ type: DataType.TEXT, allowNull: true })
+  last_result!: string
 
   @Column({ type: DataType.STRING, allowNull: true })
   url!: string
 
-  @Default({})
-  @Column({ type: DataType.JSONB, allowNull: true })
-  tags!: object
+  @Column({ type: DataType.TEXT, allowNull: true })
+  tags!: string
 
   @Default(false)
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   updating!: boolean
 
-  @Default({})
-  @Column({ type: DataType.JSONB, allowNull: true })
-  last_update_error!: object
+  @Column({ type: DataType.TEXT, allowNull: true })
+  last_update_error!: string
 
   @Column({ type: DataType.DATE, allowNull: true })
   sc_data!: Date

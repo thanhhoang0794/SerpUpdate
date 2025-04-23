@@ -13,8 +13,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const taskId = searchParams.get('id') || ''
     const campaignId = searchParams.get('tag') || ''
-
     const campaignTasksData = await getCampaignTaskState(campaignId)
+    console.log('campaignTasksData', campaignTasksData)
     let campaignTasks: string[] = Array.isArray(campaignTasksData)
       ? campaignTasksData
       : campaignTasksData

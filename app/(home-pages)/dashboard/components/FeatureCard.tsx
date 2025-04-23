@@ -2,19 +2,16 @@
 import Image from 'next/image'
 import React from 'react'
 import { Box, Text, HStack, VStack, Button, Icon } from '@chakra-ui/react'
-import { StatLabel, StatRoot, StatHelpText, StatDownTrend, StatUpTrend } from '@/components/ui/stat'
+import { StatRoot, StatHelpText, StatDownTrend, StatUpTrend } from '@/components/ui/stat'
 import { InfoTip } from '@/components/ui/toggle-tip'
 import { FaArrowRight } from 'react-icons/fa'
 import FeatureCardIcon from '@/public/FeatureCardIcon.svg'
-import FeatureCardIcon2 from '@/public/FeatureCardIcon2.svg'
 import { routes } from '@/utils/constant'
 import { useRouter } from 'next/navigation'
-import { FaCaretUp } from 'react-icons/fa'
-import { FaCaretDown } from 'react-icons/fa'
-import UpcomingFeaturePopup from './UpcomingFeaturePopup'
 import { useAtom } from 'jotai'
 import { totalTopKeywordsDashboardAtom, userPlanTypeAtom } from '@/app/constant/atom'
 import { PlanType } from '@/app/constant/planTypeEnum'
+import { parse } from 'flatted'
 
 export default function FeatureCard() {
   const [userPlanType] = useAtom(userPlanTypeAtom)
@@ -41,17 +38,25 @@ export default function FeatureCard() {
 
   domains.forEach((domain: any) => {
     domain.keywords.forEach((keyword: any) => {
-      const history = keyword.history || {}
+      let history: Record<string, number> = {}
+      if (keyword?.history) {
+        try {
+          history = parse(keyword?.history) as Record<string, number>
+        } catch (error) {
+          console.error('Error parsing history:', error)
+          history = {}
+        }
+      }
       const dates = Object.keys(history).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 
-      if (keyword.history === null || keyword.position === null) {
+      if (Object.keys(history).length === 0 || keyword.position === null) {
         keywordCounts.top100++
         keywordCountsHistory.top100++
       }
 
       const latestDate = dates[0]
-      if (!latestDate) return
       const latestValue = history[latestDate]
+      if (!latestDate) return
 
       if (latestValue === 1) {
         keywordCounts.top1++
@@ -81,7 +86,7 @@ export default function FeatureCard() {
         keywordCountsChange.top100 = keywordCounts.top100
         return
       }
-      const secondLatestValue = history[secondLatestDate as string]
+      const secondLatestValue = history[secondLatestDate]
 
       if (secondLatestValue === 1) {
         keywordCountsHistory.top1++

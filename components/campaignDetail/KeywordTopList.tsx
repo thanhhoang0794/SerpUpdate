@@ -1,14 +1,12 @@
-import { Box, HStack, SimpleGrid, Span, Text } from '@chakra-ui/react'
+import { Box, HStack, SimpleGrid, Text } from '@chakra-ui/react'
 import { StatLabel, StatRoot, StatHelpText, StatDownTrend, StatUpTrend } from '../ui/stat'
 import React from 'react'
-import { Control } from 'react-hook-form'
+import { Control, useWatch } from 'react-hook-form'
 import { FormValues } from '@/app/types/formValuesCampaign'
-import { useFormContext } from 'react-hook-form'
+import { parse } from 'flatted'
 
-const KeywordTopList = () => {
-  const { watch } = useFormContext<FormValues>()
-  const values = watch()
-  const domain = values.ownDomain
+const KeywordTopList = ({ control }: { control: Control<FormValues> }) => {
+  const domain = useWatch({ control, name: 'ownDomain' })
 
   const keywordCounts = { top1: 0, top3: 0, top5: 0, top10: 0, top30: 0, top100: 0 }
   const keywordCountsHistory = { top1: 0, top3: 0, top5: 0, top10: 0, top30: 0, top100: 0 }
@@ -16,10 +14,18 @@ const KeywordTopList = () => {
 
   if (domain?.keywords) {
     domain.keywords.forEach((keyword: any) => {
-      const history = keyword.history || {}
+      let history: Record<string, number> = {}
+      if (keyword?.history) {
+        try {
+          history = parse(keyword?.history) as Record<string, number>
+        } catch (error) {
+          console.error('Error parsing history:', error)
+          history = {}
+        }
+      }
       const latestDate = Object.keys(history).sort().pop()
       if (!latestDate) return
-      const latestValue = history[latestDate as string]
+      const latestValue = history[latestDate]
 
       if (latestValue === 1) {
         keywordCounts.top1++
@@ -47,7 +53,7 @@ const KeywordTopList = () => {
         keywordCountsChange.top100 = keywordCounts.top100
         return
       }
-      const secondLatestValue = history[secondLatestDate as string]
+      const secondLatestValue = history[secondLatestDate]
 
       if (secondLatestValue === 1) {
         keywordCountsHistory.top1++

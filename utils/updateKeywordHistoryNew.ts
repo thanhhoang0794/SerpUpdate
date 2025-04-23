@@ -1,4 +1,4 @@
-import { toJSON } from 'flatted'
+import { toJSON, parse } from 'flatted'
 import { cloneDeep } from 'lodash'
 
 export async function updateKeywordsInDatabase(
@@ -31,12 +31,21 @@ export async function updateKeywordsInDatabase(
 
         const position = keywordRanking.rank_absolute
         const url = keywordRanking.url
-        const updatedHistory = { ...(historyResponse?.history || {}), [`${newDate}`]: position }
+        let history: Record<string, number> = {}
+        if (historyResponse?.history) {
+          try {
+            history = parse(historyResponse.history) as Record<string, number>
+          } catch (error) {
+            console.error('Error parsing history:', error)
+            history = {}
+          }
+        }
+        const updatedHistory = { ...history, [`${newDate}`]: position }
 
         const { error: updateKeywordError } = await supabase
           .from('keywords')
           .update({
-            history: updatedHistory,
+            history: toJSON(updatedHistory),
             updated_at: newDate,
             position: position,
             url: url,
@@ -56,18 +65,12 @@ export async function updateKeywordsInDatabase(
           matchingItem.highlight = true
         }
 
-        const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
-          {
-            keyword_data: toJSON(searchResultsClone),
-            crawl_date: newDate,
-            domain_id: domainName.id,
-            keyword_id: historyResponse.id
-          },
-          {
-            onConflict: 'keyword_id, crawl_date',
-            ignoreDuplicates: true
-          }
-        )
+        const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').insert({
+          keyword_data: toJSON(searchResultsClone),
+          crawl_date: newDate,
+          domain_id: domainName.id,
+          keyword_id: historyResponse.id
+        })
 
         if (keywordRankingError) {
           console.error('Error inserting keyword ranking:', keywordRankingError)
@@ -97,10 +100,21 @@ export async function updateKeywordsInDatabase(
         continue
       }
 
+      let history = {}
+      if (historyResponse?.history) {
+        try {
+          history = parse(historyResponse.history)
+        } catch (error) {
+          console.error('Error parsing history:', error)
+          history = {}
+        }
+      }
+      const updatedHistory = { ...history, [`${newDate}`]: 0 }
+
       const { error: updateKeywordError } = await supabase
         .from('keywords')
         .update({
-          history: { ...historyResponse?.history, [`${newDate}`]: 0 },
+          history: toJSON(updatedHistory),
           updated_at: newDate,
           position: 0,
           url: '-',
@@ -114,18 +128,12 @@ export async function updateKeywordsInDatabase(
       if (updateKeywordError) {
         console.error('Error updating keyword for non-matching domain:', updateKeywordError)
       }
-      const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
-        {
-          keyword_data: toJSON(searchResults),
-          crawl_date: newDate,
-          domain_id: domainName.id,
-          keyword_id: historyResponse.id
-        },
-        {
-          onConflict: 'keyword_id, crawl_date',
-          ignoreDuplicates: true
-        }
-      )
+      const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').insert({
+        keyword_data: toJSON(searchResults),
+        crawl_date: newDate,
+        domain_id: domainName.id,
+        keyword_id: historyResponse.id
+      })
       if (keywordRankingError) {
         console.error('Error inserting keyword ranking:', keywordRankingError)
       }

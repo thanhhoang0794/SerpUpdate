@@ -2,7 +2,7 @@ export interface Keyword {
   id: string
   keyword: string
   position: number
-  history: History[],
+  history: string,
   device: string
   url: string
   country_code: string
