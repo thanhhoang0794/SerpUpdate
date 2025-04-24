@@ -84,20 +84,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: addCreditHistoryError.message }, { status: StatusCodes.INTERNAL_SERVER_ERROR })
   }
 
-  void (async () => {
-    try {
-      await backgroundUpdateKeywordsRanking(campaignId)
-    } catch (error) {
-      console.error('Error in background task:', error)
-      await supabase
-        .from('campaigns')
-        .update({
-          updating: false,
-          last_error: error,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', campaignId)
-    }
-  })()
+  try {
+    await backgroundUpdateKeywordsRanking(campaignId)
+  } catch (error) {
+    console.error('Error in background task:', error)
+    await supabase
+      .from('campaigns')
+      .update({
+        updating: false,
+        last_error: error,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', campaignId)
+  }
   return NextResponse.json({ message: 'Campaign update started' }, { status: 200 })
 }
