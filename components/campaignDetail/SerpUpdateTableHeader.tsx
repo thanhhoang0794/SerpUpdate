@@ -5,13 +5,7 @@ import { HStack } from '@chakra-ui/react'
 import { Input } from '@chakra-ui/react'
 import { FaSearch } from 'react-icons/fa'
 import { InputGroup } from '@/components/ui/input-group'
-import {
-  ReadonlyURLSearchParams,
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams
-} from 'next/navigation'
+import { ReadonlyURLSearchParams, useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebouncedCallback } from 'use-debounce'
 import { MdAdd, MdOutlineFileDownload, MdRefresh } from 'react-icons/md'
 import { toast } from 'react-hot-toast'
@@ -52,7 +46,7 @@ const CampaignHeader = ({ isOwnerCampaign }: SerpUpdateTableHeaderProps) => {
 
   async function handleUpdate() {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/update-campaign`, {
+      const response = await fetch(`${origin}/api/update-campaign`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -135,19 +129,14 @@ const CampaignHeader = ({ isOwnerCampaign }: SerpUpdateTableHeaderProps) => {
         />
       </InputGroup>
       <HStack>
-        {isOwnerCampaign && (
-          <AddKeyWordDialog />
-        )}
-        {isOwnerCampaign && (
-          <RemoveKeyWordDialog control={control} />
-        )}
+        {isOwnerCampaign && <AddKeyWordDialog />}
+        {isOwnerCampaign && <RemoveKeyWordDialog control={control} />}
         <Button
           backgroundColor={'white'}
           borderRadius={'md'}
           size={'sm'}
           gap={2}
           paddingX={3}
-
           variant={'solid'}
           fontSize={'sm'}
           fontWeight={'semibold'}
@@ -163,14 +152,14 @@ const CampaignHeader = ({ isOwnerCampaign }: SerpUpdateTableHeaderProps) => {
             size={'sm'}
             gap={2}
             paddingX={3}
-          variant={'solid'}
-          fontSize={'sm'}
-          fontWeight={'semibold'}
-          color="gray.800"
-          onClick={() => {
-            handleUpdate()
-          }}
-        >
+            variant={'solid'}
+            fontSize={'sm'}
+            fontWeight={'semibold'}
+            color="gray.800"
+            onClick={() => {
+              handleUpdate()
+            }}
+          >
             <MdRefresh /> Update
           </Button>
         )}
