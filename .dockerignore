@@ -11,3 +11,5 @@ TODO
 data/database.sqlite
 data/settings.json
 data/failed_queue.json
+node_modules
+build
