@@ -65,13 +65,18 @@ export async function updateKeywordsInDatabase(
           matchingItem.highlight = true
         }
 
-        const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').insert({
-          keyword_data: toJSON(searchResultsClone),
-          crawl_date: newDate,
-          domain_id: domainName.id,
-          keyword_id: historyResponse.id
-        })
-
+        const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
+          {
+            keyword_data: toJSON(searchResultsClone),
+            crawl_date: newDate,
+            domain_id: domainName.id,
+            keyword_id: historyResponse.id
+          },
+          {
+            onConflict: 'keyword_id, crawl_date',
+            ignoreDuplicates: true
+          }
+        )
         if (keywordRankingError) {
           console.error('Error inserting keyword ranking:', keywordRankingError)
         }
@@ -128,15 +133,21 @@ export async function updateKeywordsInDatabase(
       if (updateKeywordError) {
         console.error('Error updating keyword for non-matching domain:', updateKeywordError)
       }
-      const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').insert({
-        keyword_data: toJSON(searchResults),
-        crawl_date: newDate,
-        domain_id: domainName.id,
-        keyword_id: historyResponse.id
-      })
-      if (keywordRankingError) {
-        console.error('Error inserting keyword ranking:', keywordRankingError)
-      }
+      const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
+          {
+            keyword_data: toJSON(searchResultsClone),
+            crawl_date: newDate,
+            domain_id: domainName.id,
+            keyword_id: historyResponse.id
+          },
+          {
+            onConflict: 'keyword_id, crawl_date',
+            ignoreDuplicates: true
+          }
+        )
+        if (keywordRankingError) {
+          console.error('Error inserting keyword ranking:', keywordRankingError)
+        }
     }
   }
   return
