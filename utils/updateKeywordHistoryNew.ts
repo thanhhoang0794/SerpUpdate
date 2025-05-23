@@ -65,7 +65,7 @@ export async function updateKeywordsInDatabase(
           matchingItem.highlight = true
         }
 
-        const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
+        const { error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
           {
             keyword_data: toJSON(searchResultsClone),
             crawl_date: newDate,
@@ -133,22 +133,21 @@ export async function updateKeywordsInDatabase(
       if (updateKeywordError) {
         console.error('Error updating keyword for non-matching domain:', updateKeywordError)
       }
-      const searchResultsClone = cloneDeep(searchResults)
-      const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
-          {
-            keyword_data: toJSON(searchResultsClone),
-            crawl_date: newDate,
-            domain_id: domainName.id,
-            keyword_id: historyResponse.id
-          },
-          {
-            onConflict: 'keyword_id, crawl_date',
-            ignoreDuplicates: true
-          }
-        )
-        if (keywordRankingError) {
-          console.error('Error inserting keyword ranking:', keywordRankingError)
+      const { error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
+        {
+          keyword_data: toJSON(searchResults),
+          crawl_date: newDate,
+          domain_id: domainName.id,
+          keyword_id: historyResponse.id
+        },
+        {
+          onConflict: 'keyword_id, crawl_date',
+          ignoreDuplicates: true
         }
+      )
+      if (keywordRankingError) {
+        console.error('Error inserting keyword ranking:', keywordRankingError)
+      }
     }
   }
   return
