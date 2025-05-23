@@ -24,16 +24,17 @@ const SerpUpdateTableList = () => {
 
   // Lấy history dates từ keyword đầu tiên
   let history = {}
-  if (selectedDomain?.keywords?.[-1]?.history) {
+  const lastIndex = selectedDomain?.keywords?.length ? selectedDomain.keywords.length - 1 : 0
+  if (selectedDomain?.keywords?.[lastIndex]?.history) {
     try {
-      history = parse(selectedDomain?.keywords?.[-1]?.history)
+      history = parse(selectedDomain?.keywords?.[lastIndex]?.history)
     } catch (error) {
       console.error('Error parsing history:', error)
       history = {}
     }
   }
   console.log(history)
-  const historyDates = selectedDomain?.keywords?.[-1]?.history
+  const historyDates = selectedDomain?.keywords?.[lastIndex]?.history
     ? Object.keys(history)
         .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
         .slice(0, 5)

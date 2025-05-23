@@ -1,170 +1,261 @@
-@startuml SERP_ERD
+@startuml Database_ERD
 
+' User Entity
 entity "User" as user {
-    id: number
-    -- 
-    googleId: string
-    email: string
+    id: string <<PK>>
+    --
+    google_id: string <<unique>>
+    email: string <<unique>>
+    image_url: string
     username: string
-    password: string
-    isAdmin: boolean
-    affiliateId: string
-    paymentMethod: string
+    is_admin: boolean
+    affiliate_id: string
+    payment_method: string
+    bank_account_number: string
+    bank_code: string
+    bank_branch: string
+    bank_city_or_province: string
+    bank_name: string
+    plan_type: enum('no-plan', 'free-plan', 'paid-plan')
+    plan_changed_at: Date
+    is_active: boolean
     created_at: Date
     updated_at: Date
 }
 
+' Credit Entity
 entity "Credit" as credit {
-    id: number
+    id: number <<PK>>
     --
-    ~userId: number
+    user_id: string <<FK>>
     --
-    totalCredits : number
-    bonusCredits: number
-    expiredCredits: number 
+    total_credits: number
+    bonus_credits: number
     created_at: Date
     updated_at: Date
 }
 
+' CreditHistory Entity
+entity "CreditHistory" as creditHistory {
+    id: number <<PK>>
+    --
+    credit_id: number <<FK>>
+    type: enum('Use', 'Buy', 'Bonus', 'Expired')
+    amount: number
+    created_at: Date
+    updated_at: Date
+}
+
+' Campaign Entity
 entity "Campaign" as campaign {
-    id: number
-    -- 
+    id: number <<PK>>
+    --
     name: string
-    created_at: Date
-    updated_at: Date
-}
-
-entity "CampaignSnapshot" as campaignSnapshot {
-    id: number
-    --
-    ~campaignId: number
-    --
-    snapshotType: string
-    snapshotData: string
-    snapshotDate: Date
-    created_at: Date
-    updated_at: Date
-}
-
-entity "CampaignUser" as campaignUser {
-    id: number
-    --
-    ~campaignId: number
-    ~userId: number
-    -- 
-    isCreator: boolean
-    canEdit: boolean
-    created_at: Date
-    updated_at: Date
-}
-
-entity "Domain" as domain {
-    id: number
-    --
-    ~campaignId: number
-    --
-    domain: string
-    slug: string
-    keywordCount: number
-    lastUpdated: Date
-    added: Date
+    keyword_count: number
+    devices: enum('desktop', 'mobile', 'both')
+    country_code: string
+    language: string
+    search_engine: enum('google', 'yahoo', 'bing', 'baidu', 'seznam', 'naver')
     tags: string
     notification: string
     notification_interval: string
-    notification_emails: string
+    notification_email: string
     search_console: string
+    updating: boolean
+    sc_data: Date
+    uid: string
+    city: string
+    note: text
+    day_of_week: string[]
+    time_of_day: Date
+    is_active: boolean
     created_at: Date
     updated_at: Date
 }
 
-entity "CompetitorDomain" as competitorDomain {
-    id: number
+' CampaignSnapshot Entity
+entity "CampaignSnapshot" as campaignSnapshot {
+    id: number <<PK>>
     --
-    ~domainId: number
-    --
-    competitorDomain: string
+    campaign_id: number <<FK>>
+    snapshot_type: string
+    snapshot_data: text
+    snapshot_date: Date
     created_at: Date
     updated_at: Date
 }
 
+' CampaignUser Entity
+entity "CampaignUser" as campaignUser {
+    id: number <<PK>>
+    --
+    campaign_id: number <<FK>>
+    user_id: string <<FK>>
+    is_creator: boolean
+    can_edit: boolean
+    is_active: boolean
+    created_at: Date
+    updated_at: Date
+}
+
+' Domain Entity
+entity "Domain" as domain {
+    id: number <<PK>>
+    --
+    campaign_id: number <<FK>>
+    domain: string
+    domain_type: enum('competitor', 'own')
+    slug: string
+    is_active: boolean
+    created_at: Date
+    updated_at: Date
+}
+
+' Keyword Entity
 entity "Keyword" as keyword {
-    id: number
+    id: number <<PK>>
     --
-    ~domainId: number
-    --
+    domain_id: number <<FK>>
     keyword: string
-    device: string
-    country: string
-    lastUpdated: string
+    device: enum('desktop', 'mobile')
+    country_code: string
+    language: string
+    search_engine: enum('google', 'yahoo', 'bing', 'baidu', 'seznam', 'naver')
     added: string
     position: number
     volume: number
     sticky: boolean
-    history: KeywordHistory
-    lastResult: KeywordLastResult[]
+    history: text
+    last_result: text
     url: string
-    tags: string[]
+    tags: text
     updating: boolean
-    lastUpdateError: {date: string, error: string, scraper: string} | false
-    scData?: any
-    uid?: string
-    city?: string
+    last_update_error: text
+    sc_data: Date
+    uid: string
+    city: string
+    latlong: string
+    settings: string
+    is_active: boolean
     created_at: Date
     updated_at: Date
 }
 
-' Nested structures for Keyword entity (representing keyword history and results)
-' KeywordLastResult {
-'    position: number ' Ranking position in search
-'    url: string ' URL of the ranked page
-'    title: string ' Title of the ranked page
-' }
-
-' KeywordHistory {
-'    [date:string] : number ' Mapping of date to ranking position
-' }
-
+' KeywordRanking Entity
 entity "KeywordRanking" as keywordRanking {
-    id: number
+    id: number <<PK>>
     --
-    ~keywordId: number
-    ~domainId: number
-    ~competitorDomainId: number
-    -- 
-    rank: number
-    searchVolume: number
+    keyword_id: number <<FK>>
+    domain_id: number <<FK>>
+    keyword_data: text
+    crawl_date: Date
     created_at: Date
     updated_at: Date
 }
 
+' Transaction Entity
 entity "Transaction" as transaction {
-    id: number
+    id: number <<PK>>
     --
-    ~userId: number
-    --
-    transactionDate: Date
-    stripeId: string
-    amount: number
+    user_id: string <<FK>>
+    transaction_date: Date
+    onepay_transaction_id: string
+    payment_method: string
+    status: enum('Pending', 'Success', 'Failed')
+    amount: text
+    credit_amount: number
+    created_at: Date
+    updated_at: Date
 }
 
-' Relationships between entities
-campaign ||--o{ domain : "has many" 
-' A campaign can have many domains
-domain ||--o{ keyword : "has many" 
-' A domain can have many keywords
-keyword ||--o{ keywordRanking : "tracks" 
-' Each keyword has associated rankings
-domain ||--o{ competitorDomain : "has many" 
-' A domain can have many competitor domains
-competitorDomain ||--o{ keywordRanking : "tracks" 
-' Rankings are tracked for competitor domains too
-user ||--o{ credit 
-user ||--o{ transaction
-campaign ||--o{ campaignUser : "many-to-many" 
-' Many-to-many relationship between campaigns and users
-campaign ||--o{ campaignSnapshot : "has many" 
-' A campaign can have many snapshots
-user ||--o{ campaignUser 
-' Each user can participate in multiple campaigns
+' UserLoginHistory Entity
+entity "UserLoginHistory" as userLoginHistory {
+    id: number <<PK>>
+    --
+    user_id: string <<FK>>
+    user: string
+    logged_in_at: Date
+    created_at: Date
+    updated_at: Date
+}
+
+' RegisterLog Entity
+entity "RegisterLog" as registerLog {
+    id: number <<PK>>
+    --
+    email: string
+    ip: string
+    hostname: string
+    city: string
+    region: string
+    country: string
+    timezone: string
+    loc: string
+    org: string
+    postal: string
+    created_at: Date
+    updated_at: Date
+}
+
+' TaskTracking Entity
+entity "TaskTracking" as taskTracking {
+    id: number <<PK>>
+    --
+    task_id: string
+    campaign_id: string
+    status: enum('waiting', 'received', 'processing', 'done')
+    is_active: boolean
+    created_at: Date
+    updated_at: Date
+}
+
+' CampaignUpdating Entity
+entity "CampaignUpdating" as campaignUpdating {
+    id: number <<PK>>
+    --
+    campaign_id: number
+    search_engine: enum('google', 'yahoo', 'bing', 'baidu', 'seznam', 'naver')
+    status: enum('waiting', 'completed', 'error', 'updating')
+    total_task: number
+    count_waiting: number
+    created_at: Date
+    updated_at: Date
+}
+
+' Price Entity
+entity "Price" as price {
+    id: number <<PK>>
+    --
+    price_usd: number
+    total_credits: number
+    percent_bonus: number
+    total_credits_bonus: number
+    total_credits_with_bonus: number
+    created_at: Date
+    updated_at: Date
+}
+
+' ConfigCountWaitingForPingback Entity
+entity "ConfigCountWaitingForPingback" as configCount {
+    id: number <<PK>>
+    --
+    count: number
+    created_at: Date
+    updated_at: Date
+}
+
+' Relationships
+user ||--o{ credit : has
+credit ||--o{ creditHistory : has
+user ||--o{ transaction : has
+user ||--o{ campaignUser : participates
+user ||--o{ userLoginHistory : has
+campaign ||--o{ campaignUser : has
+campaign ||--o{ campaignSnapshot : has
+campaign ||--o{ domain : has
+campaign ||--o{ taskTracking : has
+campaign ||--o{ campaignUpdating : has
+domain ||--o{ keyword : has
+keyword ||--o{ keywordRanking : has
 
 @enduml

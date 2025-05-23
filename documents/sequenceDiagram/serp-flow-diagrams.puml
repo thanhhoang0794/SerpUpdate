@@ -12,39 +12,54 @@ database "Supabase" as DB
 
 User -> UpdateKeyword: Request update (campaignId)
 UpdateKeyword -> DB: Get campaign data
-UpdateKeyword -> DB: Mark keywords as updating
-UpdateKeyword -> DB: Create campaignUpdating record
-UpdateKeyword -> CreateTask: Send tasks in chunks (max 100)
+UpdateKeyword -> DB: Mark campaign & keywords as updating
+UpdateKeyword -> DB: Create campaignUpdating record with status WAITING
+UpdateKeyword -> CreateTask: Send tasks with keyword information in chunks (max 100)
 
 CreateTask -> DataForSEO: Send tasks to DataForSEO API
-CreateTask -> DB: Store task IDs with WAITING status
-CreateTask --> UpdateKeyword: Return success
+alt Success
+    CreateTask -> "Redis": Store task IDs with WAITING status
+    CreateTask --> UpdateKeyword: Return success
+else API Error
+    CreateTask -> DB: Log error
+    CreateTask -> DB: Mark campaign as failed
+    CreateTask --> UpdateKeyword: Return error
+end
 
 DataForSEO --> Callback: Pingback when task ready
-Callback -> DB: Update task status to RECEIVED
+alt Success Response
+    Callback -> "Redis": Update task status to RECEIVED
+end
 
 loop Scheduled check
     CheckTask -> DB: Get WAITING campaigns
     CheckTask -> ProcessUpdating: Process each campaign
     
-    ProcessUpdating -> DB: Get task tracking status
+    ProcessUpdating -> "Redis": Get task tracking status
     
     alt Tasks still WAITING
         ProcessUpdating -> DB: Increment wait counter
         alt Wait counter >= threshold
-            ProcessUpdating -> DataForSEO: Manually check tasks
-            ProcessUpdating -> DB: Update task status
+            ProcessUpdating -> DataForSEO: Manually check tasks bases on taskId
+            alt Success
+                ProcessUpdating -> "Redis": Update task status
+            end
         end
     else All tasks RECEIVED
-        ProcessUpdating -> DB: Mark campaign as COMPLETED
+        ProcessUpdating -> DB: Mark campaign as UPDATING
         ProcessUpdating -> ProcessKeywords: Process received data
+    else Some tasks ERROR
+        ProcessUpdating -> DB: Mark campaign as FAILED
+        ProcessUpdating -> "Email Service": Send error notification
     end
 end
 
 ProcessKeywords -> DataForSEO: Fetch full results for each task
-ProcessKeywords -> DB: Update keyword rankings
-ProcessKeywords -> DB: Mark campaign as not updating
-ProcessKeywords -> DB: Mark tasks as DONE
-ProcessKeywords -> "Email Service": Send notification email
+alt Success
+    ProcessKeywords -> DB: Update keyword rankings
+    ProcessKeywords -> DB: Mark campaign as COMPLETED
+    ProcessKeywords -> "Redis": Mark tasks as DONE
+    ProcessKeywords -> "Email Service": Send success notification email
+end
 
 @enduml
