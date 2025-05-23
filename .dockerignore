@@ -13,3 +13,12 @@ data/settings.json
 data/failed_queue.json
 node_modules
 build
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.test
+.env.production
