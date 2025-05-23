@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     }
     const location = locationList.find((location: Location) => location.country_iso_code === campaignData.country_code)
     const language = languageList.find((language: Language) => language.language_name === campaignData.language)
-    const pingback_url = `https://serp-update-production.up.railway.app/api/dataforseo-callback?id=$id&tag=$tag`
+    const pingback_url = `https://serpupdate-production.up.railway.app/api/dataforseo-callback?id=$id&tag=$tag`
     await deleteCache(`campaign:${campaignId}:tasks`)
     await deleteCache(`taskTrackingCampaign:${campaignId}`)
     for (const taskChunk of taskChunks) {
