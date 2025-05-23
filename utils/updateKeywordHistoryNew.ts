@@ -133,6 +133,7 @@ export async function updateKeywordsInDatabase(
       if (updateKeywordError) {
         console.error('Error updating keyword for non-matching domain:', updateKeywordError)
       }
+      const searchResultsClone = cloneDeep(searchResults)
       const { data: keywordRankingData, error: keywordRankingError } = await supabase.from('keywordRankings').upsert(
           {
             keyword_data: toJSON(searchResultsClone),
