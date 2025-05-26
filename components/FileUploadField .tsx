@@ -39,14 +39,12 @@ export default function FileUploadField({
             const fileExt = file.name.split('.').pop();
             const filePath = `${uid}-${Math.random()}.${fileExt}`;
 
-            const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
-
+            const { data ,error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
             if (uploadError) {
                 throw uploadError;
             }
 
             const { data: { publicUrl } } = await supabase.storage.from('avatars').getPublicUrl(filePath);
-
             onUpload(publicUrl);
         } catch (error) {
             alert('Error uploading avatar!');

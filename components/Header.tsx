@@ -150,7 +150,7 @@ const Header = () => {
             gap={1}
             bg={isDropdownOpen ? '#00000014' : 'transparent'}
           >
-            <Avatar size="xs" name="Uchiha Sasuke" src={userInfo?.avatar} />
+            <Avatar size="xs" name={userInfo?.username} src={userInfo?.avatar} />
             <Text fontWeight="500" fontSize="14px" color="gray.700">
               {userInfo?.username}
             </Text>

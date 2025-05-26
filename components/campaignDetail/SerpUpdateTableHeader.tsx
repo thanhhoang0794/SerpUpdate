@@ -7,14 +7,15 @@ import { FaSearch } from 'react-icons/fa'
 import { InputGroup } from '@/components/ui/input-group'
 import { ReadonlyURLSearchParams, useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebouncedCallback } from 'use-debounce'
-import { MdAdd, MdOutlineFileDownload, MdRefresh } from 'react-icons/md'
+import { MdOutlineFileDownload, MdRefresh } from 'react-icons/md'
 import { toast } from 'react-hot-toast'
 import { writeFile, utils } from 'xlsx'
-import { Control, useWatch, useForm } from 'react-hook-form'
 import { FormValues } from '@/app/types/formValuesCampaign'
 import { AddKeyWordDialog } from './AddKeyWordDialog'
 import { RemoveKeyWordDialog } from './RemoveKeyWordDialog'
 import { useFormContext } from 'react-hook-form'
+import { parse } from 'flatted'
+import React from 'react'
 interface SerpUpdateTableHeaderProps {
   isOwnerCampaign: boolean
 }
@@ -72,20 +73,29 @@ const CampaignHeader = ({ isOwnerCampaign }: SerpUpdateTableHeaderProps) => {
     const data = selectedDomain?.keywords
 
     const filteredData = data.map((keyword: any) => {
-      const history = keyword.history as any as { [key: string]: number }
-      const historyDates = Object.keys(history)
-        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-        .slice(0, 5)
-      const historyValues = historyDates.map(date => history[date])
+      let history = {}
+  if (keyword?.history) {
+    try {
+      history = parse(keyword?.history)
+    } catch (error) {
+      console.error('Error parsing history:', error)
+      history = {}
+        }
+      }
+       const recentHistory =
+         Object.entries(history)
+           .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+           .slice(0, 5)
+           .map(([date, value]) => ({ date, value: value as number })) || []
       return {
         keyword: keyword.keyword,
         device: keyword.device,
         url: keyword.url,
-        change: historyValues[0] - historyValues[1],
-        ...historyDates.reduce(
+        change: recentHistory[0]?.value - recentHistory[1]?.value,
+        ...recentHistory.reduce(
           (acc, date) => ({
             ...acc,
-            [date]: history[date]
+            [date.date]: date.value
           }),
           {}
         )

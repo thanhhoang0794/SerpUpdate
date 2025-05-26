@@ -124,10 +124,10 @@ export async function GET(request: Request) {
         }
       }
 
-      const successUrl = new URL(`/checkout/success?orderId=${vpc_MerchTxnRef}`, request.url)
+      const successUrl = new URL(`/checkout/success?orderId=${vpc_MerchTxnRef}`, process.env.NEXT_PUBLIC_APP_URL)
       return NextResponse.redirect(successUrl)
     } else {
-      const errorUrl = new URL(`/checkout/error?orderId=${vpc_MerchTxnRef}`, request.url)
+      const errorUrl = new URL(`/checkout/error?orderId=${vpc_MerchTxnRef}`, process.env.NEXT_PUBLIC_APP_URL)
       return NextResponse.redirect(errorUrl)
     }
   } catch (error) {

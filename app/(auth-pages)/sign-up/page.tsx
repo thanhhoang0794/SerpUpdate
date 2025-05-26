@@ -54,11 +54,9 @@ const schema = yup.object({
 function RegisterForm() {
   const [loading, setLoading] = useState(false)
   const [serverErrors, setServerErrors] = useState<{ [key: string]: string }>({})
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
-  const captchaRef = useRef<HCaptcha>(null)
 
   const {
     handleSubmit,
@@ -79,12 +77,7 @@ function RegisterForm() {
     reValidateMode: 'onSubmit'
   })
 
-  const handleCaptchaChange = (value: string | null) => {
-    setCaptchaToken(value)
-  }
-
   const errorMessage = searchParams?.get('error')
-
 
   useEffect(() => {
     if (errorMessage && searchParams) {
@@ -122,7 +115,6 @@ function RegisterForm() {
       if (!errorMessage) {
         return null
       }
-      captchaRef.current?.resetCaptcha()
     } catch (error) {
     } finally {
       setLoading(false)
@@ -150,8 +142,16 @@ function RegisterForm() {
         </Link>
       </VStack>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box minWidth="420px" maxWidth={"421px"} minHeight={131} display="flex" flexDirection="column">
-          <Button type="button" backgroundColor="gray.100" height={12} fontSize="lg" fontWeight="400" color="gray.800" onClick={async () => await signInOrSignUpByGoogle("sign-up")}>
+        <Box minWidth="420px" maxWidth={'421px'} minHeight={131} display="flex" flexDirection="column">
+          <Button
+            type="button"
+            backgroundColor="gray.100"
+            height={12}
+            fontSize="lg"
+            fontWeight="400"
+            color="gray.800"
+            onClick={async () => await signInOrSignUpByGoogle('sign-up')}
+          >
             <FaGoogle color="red" /> Sign up with Google
           </Button>
           <HStack marginTop={5}>
@@ -189,22 +189,7 @@ function RegisterForm() {
             name="confirmPassword"
             errors={errors.confirmPassword}
           />
-          <Flex justifyContent="start" marginTop={10}>
-            <Box>
-              <HCaptcha
-                ref={captchaRef}
-                sitekey={process.env.HCAPTCHA_SITE_KEY!}
-                onVerify={(token) => {
-                  setCaptchaToken(token)
-                }}
-              />
-            </Box>
-          </Flex>
-          <CheckboxField
-            control={control}
-            name="privacy"
-            errors={errors.privacy ? errors.privacy : undefined}
-          />
+          <CheckboxField control={control} name="privacy" errors={errors.privacy ? errors.privacy : undefined} />
           <Button
             type="submit"
             marginTop={2.5}
@@ -212,7 +197,7 @@ function RegisterForm() {
             height={12}
             fontSize="lg"
             fontWeight="600"
-            disabled={!captchaToken || loading}
+            disabled={loading}
           >
             {loading ? 'Signing Up...' : 'Sign Up'}
           </Button>
